@@ -1,25 +1,26 @@
 import cv2
-
 from yolov7 import YOLOv7
 
 # Initialize the webcam
 cap = cv2.VideoCapture(0)
 
 # Initialize YOLOv7 object detector
-model_path = "models/yolov7_384x640.onnx"
+model_path = "models/best_square.onnx"
 yolov7_detector = YOLOv7(model_path, conf_thres=0.5, iou_thres=0.5)
 
 cv2.namedWindow("Detected Objects", cv2.WINDOW_NORMAL)
-while cap.isOpened():
 
+while cap.isOpened():
     # Read frame from the video
     ret, frame = cap.read()
 
     if not ret:
         break
 
+    # frame.resize(544, 960)
+
     # Update object localizer
-    boxes, scores, class_ids = yolov7_detector(frame)
+    boxes, scores, class_ids = yolov7_detector.detect_objects(frame)
 
     combined_img = yolov7_detector.draw_detections(frame)
     cv2.imshow("Detected Objects", combined_img)

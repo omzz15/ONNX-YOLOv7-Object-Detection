@@ -16,9 +16,6 @@ class YOLOv7:
         # Initialize model
         self.initialize_model(path)
 
-    def __call__(self, image):
-        return self.detect_objects(image)
-
     def initialize_model(self, path):
         self.session = onnxruntime.InferenceSession(path,
                                                     providers=['CUDAExecutionProvider',
@@ -69,10 +66,14 @@ class YOLOv7:
         return outputs
 
     def process_output(self, output):
+        #print(np.array(output).shape)
+        #print(np.array(output[0]).shape)
         predictions = np.squeeze(output[0])
 
         # Filter out object confidence scores below threshold
+        print(predictions.shape)
         obj_conf = predictions[:, 4]
+        print(obj_conf.shape)
         predictions = predictions[obj_conf > self.conf_threshold]
         obj_conf = obj_conf[obj_conf > self.conf_threshold]
 
@@ -101,7 +102,6 @@ class YOLOv7:
         return boxes[indices], scores[indices], class_ids[indices]
 
     def parse_processed_output(self, outputs):
-
         #Pinto's postprocessing is different from the official nms version
         if self.official_nms:
             scores = outputs[0][:,-1]
